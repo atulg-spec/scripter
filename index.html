@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TXT to XLSX Converter</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
+    <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-4">Upload a .txt file to convert to .xlsx</h1>
+        <input type="file" id="fileInput" accept=".txt" class="mb-4 p-2 border border-gray-300 rounded-md w-full">
+        <button onclick="convertFile()" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Convert to
+            XLSX</button>
+    </div>
+
+    <script>
+        function convertFile() {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files.length) {
+                alert('Please select a file!');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const content = e.target.result;
+                const lines = content.split('\n').filter(line => line.trim() !== '');
+
+                // Prepare data for XLSX
+                let res = 1920 - (lines.length * 10)
+                const data = lines.map(line => {
+                    res = res + 10
+                    return {
+                        proxytype: 'socks5',
+                        proxy: line,
+                        ua: '',
+                        resolution: `${res}*1080`
+                    };
+                });
+
+                // Convert to worksheet
+                const worksheetData = [
+                    ["proxytype", "proxy", "ua", "resolution"],
+                    ...data.map(item => [item.proxytype, item.proxy, item.ua, item.resolution])
+                ];
+                const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+                // Create a new workbook
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Proxies");
+
+                // Generate XLSX file
+                XLSX.writeFile(workbook, 'proxies.xlsx');
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+
+</html>
