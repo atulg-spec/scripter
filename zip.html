@@ -12,8 +12,6 @@
 <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Upload Zip File and Modify Links</h2>
-        <input type="text" id="oldDomain" class="mb-4 p-2 border border-gray-300 rounded-md w-full"
-            placeholder="Old extension domain" required>
         <input type="text" id="newDomain" class="mb-4 p-2 border border-gray-300 rounded-md w-full"
             placeholder="New extension domain" required>
         <textarea id="linksInput" rows="10" cols="50" placeholder="Paste the modified links here"
@@ -27,7 +25,7 @@
     <script>
         function modifyLinksAndDownload() {
             const linksInput = document.getElementById('linksInput');
-            let oldDomain = document.getElementById('oldDomain').value
+            let oldDomain = 'lewcar.xyz'
             let newDomain = document.getElementById('newDomain').value
 
             const zipFilePath = 'lewcar.xyz.zip'; // Specify the path to your zip file here
