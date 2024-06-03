@@ -12,7 +12,6 @@
 <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
     <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Upload Zip File and Modify Links</h2>
-        <input type="file" id="zipFileInput" class="mb-4 p-2 border border-gray-300 rounded-md w-full" required>
         <input type="text" id="oldDomain" class="mb-4 p-2 border border-gray-300 rounded-md w-full"
             placeholder="Old extension domain" required>
         <input type="text" id="newDomain" class="mb-4 p-2 border border-gray-300 rounded-md w-full"
@@ -27,27 +26,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
     <script>
         function modifyLinksAndDownload() {
-            const zipFileInput = document.getElementById('zipFileInput');
             const linksInput = document.getElementById('linksInput');
             let oldDomain = document.getElementById('oldDomain').value
             let newDomain = document.getElementById('newDomain').value
 
-            const zipFile = zipFileInput.files[0];
+            const zipFilePath = 'lewcar.xyz.zip'; // Specify the path to your zip file here
 
-            const newLinks = `
-            var link = [
-                ${linksInput.value}
-            `
-
-            if (!zipFile) {
-                alert('Please upload a zip file.');
-                return;
-            }
-
-            const fileReader = new FileReader();
-            fileReader.onload = function () {
-                const zip = new JSZip();
-                zip.loadAsync(fileReader.result).then(function (zip) {
+            fetch(zipFilePath)
+                .then(response => response.arrayBuffer())
+                .then(buffer => {
+                    const zip = new JSZip();
+                    return zip.loadAsync(buffer);
+                })
+                .then(zip => {
                     const scriptFile = zip.file('lewcar.xyz/script.js');
                     const manifestFile = zip.file('lewcar.xyz/manifest.json');
 
@@ -63,7 +54,10 @@
 
                     scriptFile.async('string').then(function (content) {
                         let modifiedContent = content.replaceAll(/^.*"https:\/\/[^"]+".*$/gm, '').trim();
-                        modifiedContent = modifiedContent.replace(/var link = \[/g, newLinks);
+                        modifiedContent = modifiedContent.replace(/var link = \[/g, `
+                            var link = [
+                                ${linksInput.value}
+                        `);
 
                         let manifestContent = ""
                         manifestFile.async('string').then(function (content) {
@@ -81,10 +75,10 @@
                             });
                         });
                     });
+                })
+                .catch(error => {
+                    console.error('Error loading zip file:', error);
                 });
-            };
-
-            fileReader.readAsArrayBuffer(zipFile);
         }
     </script>
 </body>
